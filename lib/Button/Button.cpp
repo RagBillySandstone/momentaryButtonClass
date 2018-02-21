@@ -37,16 +37,16 @@ bool Button::debouncedRead() {
   }
 
   // Check if the input passes the debounce
-  // but don't do anything unless the state changed:
-  if ( (_now - _lastDebounceTime) > _debounceThreshold){
+  bool passedDebounce = ((_now - _lastDebounceTime) > _debounceThreshold);
+  if (passedDebounce == true) {
     bool didStateChange = (currentReading != _lastDebouncedState);
-    if (didStateChange) {
-      _lastDebouncedState = currentReading; // Change the state
+    if (didStateChange == true) {
+      _lastDebouncedState = currentReading;
       // Was there a "click?" i.e., did state change from high to low
       if (_lastDebouncedState == LOW)
         _registerClick(_now);
-      } // end (didStateChange)
-    } // end debounce check
+      } // (didStateChange)
+    } // (passedDebounce)
   return _lastDebouncedState; // after all, that's what we asked for
 }
 
@@ -64,7 +64,6 @@ void Button::_checkDoubleClick(unsigned long clickTime) {
   // There's been a "click" event while _isSingleClicked == true.
   // If the DOUBLE_CLICK_THRESHOLD hasn't expired, we have a "double click"
   bool isUnderThreshold = (clickTime - _lastClickTime <= _doubleClickThreshold);
-
   if (isUnderThreshold) {
     _isDoubleClicked = true;
     _isSingleClicked = false;
@@ -73,19 +72,32 @@ void Button::_checkDoubleClick(unsigned long clickTime) {
   else {                    // Just the next "single click"
     _isDoubleClicked = false;
     _isSingleClicked = true;
-    _lastClickTime = _now;
+    _lastClickTime = clickTime;
   }
 }
 
 
 bool Button::readSingleClick() {
-  if (_isSingleClicked) {
-    _isSingleClicked = false;
+  // TODO: I feel there's some state logic I'm missing that makes (or could
+  // make) the _doubleClickThreshold check unnecessary here
 
+  _now = millis();
+  // It's not really a click unless it's NOT a double click
+  bool pastThreshold = ((_now - _lastClickTime) > _doubleClickThreshold);
+  if (_isSingleClicked && pastThreshold) {
+    _isSingleClicked = false; // Forget there ever was a click
+    _isDoubleClicked = false;
+    _lastClickTime = 0;
+    return true;
   }
-    return _isSingleClicked;
+  else
+    return false;
 }
 
 bool Button::readDoubleClick() {
-    return LOW;
+    if (_isDoubleClicked == true) {
+      _isDoubleClicked = false;
+      return true;
+    }
+    return false;
 }

@@ -32,7 +32,7 @@ class Button {
       // Use in place of digitalRead() for debounced input
     bool readSingleClick();
       // true if ( _isSingleClicked && DOUBLE_CLICK_THRESHOLD is expired )
-      // Clears "single click" if true
+      // Clears "single click" and "double click" if true
     bool readDoubleClick();
       // true if ( _isSingleClicked && !(DOUBLE_CLICK_THRESHOLD is expired))
       // Clears "double click" if true
