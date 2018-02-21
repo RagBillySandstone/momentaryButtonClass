@@ -28,6 +28,7 @@ void Button::begin(byte pinNumber,
   _pin = pinNumber;
   _debounceThreshold = debounceThreshold;
   _doubleClickThreshold = doubleClickThreshold;
+  pinMode(_pin, INPUT);
 }
 
 bool Button::debouncedRead() {
