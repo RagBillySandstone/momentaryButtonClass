@@ -14,16 +14,73 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <../lib/Button/Button.h>
 
-Button thisButt;
+/* We want to test the debounce most of all. The main loop should count the
+    number of times the actual input changes before debounced input changes.
+    and then hopefully give us some stats about it
+*/
+
+
+#include <Button.h>
+#define BUTTON_1 12
+
+
+Button thisButton;
+
+// TODO: Not constants so I can implement a function to tune them later
+byte debounceThreshold = 50;
+unsigned int doubleClickThreshold = 1000;
+
+bool lastDebounceState = LOW;
+bool lastDigitalReadState = LOW;
+unsigned int changesSinceDebounce = 0;
+
+// For calculating average bounces per debounce
+unsigned int totalBounces = 0;
+unsigned int totalDebouncedChanges = 0;
+
+// For timing our bounce/debounce report period
+unsigned long now = 0;
+unsigned long lastSummary = 0;
+unsigned int summaryInterval = 10000;
+
 
 void setup() {
   Serial.begin(9600);
+  thisButton.begin(BUTTON_1, debounceThreshold, doubleClickThreshold);
 }
 
+
 void loop() {
-  bool reading1 = thisButt.debouncedRead();
-  Serial.println(reading1);
-  delay(333);
+  now = millis();
+  if (thisButton.debouncedRead() != lastDebounceState) {
+    lastDebounceState = !lastDebounceState;
+    Serial.print("Debounced input detected. ");
+    Serial.print(changesSinceDebounce);
+    Serial.print(" bounces since last debounced change.\n");
+
+    totalBounces += changesSinceDebounce;
+    totalDebouncedChanges +=1;
+    changesSinceDebounce = 0;
+  }
+
+  if (digitalRead(BUTTON_1) != lastDigitalReadState) {
+    lastDigitalReadState = !lastDigitalReadState;
+    changesSinceDebounce += 1;
+    Serial.print("Bounce detected\n");
+  }
+
+  if (now - lastSummary >= summaryInterval) {
+    double average = double(totalBounces) / double(totalDebouncedChanges);
+    Serial.print("Total bounces: ");
+    Serial.print(totalBounces);
+    Serial.print("   Total debounced: ");
+    Serial.print(totalDebouncedChanges);
+    Serial.println();
+    Serial.print("Average: ");
+    Serial.print(average);
+    Serial.print(" bounces per debounced change.\n");
+    Serial.println();
+    lastSummary = now;
+  }
 }
