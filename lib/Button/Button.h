@@ -27,7 +27,9 @@
 class Button {
   public:
     Button();
-    void begin(byte pinNumber);
+    void begin(byte pinNumber,
+              byte debounceThreshold = DEBOUNCE_THRESHOLD,
+              unsigned int doubleClickThreshold = DOUBLE_CLICK_THRESHOLD);
     bool debouncedRead();
       // Use in place of digitalRead() for debounced input
     bool readSingleClick();
@@ -39,11 +41,11 @@ class Button {
 
   private:
     byte _pin;
-    const byte _debounceThreshold = DEBOUNCE_THRESHOLD;
+    byte _debounceThreshold = DEBOUNCE_THRESHOLD;
     unsigned long _lastDebounceTime = 0;
     bool _lastDebouncedState = LOW;
 
-    const unsigned int _doubleClickThreshold = DOUBLE_CLICK_THRESHOLD;
+    unsigned int _doubleClickThreshold = DOUBLE_CLICK_THRESHOLD;
     unsigned long _lastClickTime = 0;
     bool _isSingleClicked = false;
     bool _isDoubleClicked = false;

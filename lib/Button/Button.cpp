@@ -22,8 +22,12 @@ Button::Button() {
   _lastDebouncedState = digitalRead(_pin);
 }
 
-void Button::begin(byte pinNumber) {
+void Button::begin(byte pinNumber,
+                byte debounceThreshold,
+                unsigned int doubleClickThreshold) {
   _pin = pinNumber;
+  _debounceThreshold = debounceThreshold;
+  _doubleClickThreshold = doubleClickThreshold;
 }
 
 bool Button::debouncedRead() {
