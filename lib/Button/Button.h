@@ -27,6 +27,7 @@
 class Button {
   public:
     Button();
+    void begin(byte pinNumber);
     bool debouncedRead();
       // Use in place of digitalRead() for debounced input
     bool readSingleClick();

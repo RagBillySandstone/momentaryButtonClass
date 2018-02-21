@@ -22,6 +22,10 @@ Button::Button() {
   _lastDebouncedState = digitalRead(_pin);
 }
 
+void Button::begin(byte pinNumber) {
+  _pin = pinNumber;
+}
+
 bool Button::debouncedRead() {
   // Use in place of digitalRead() for debounced read on this pin
   _now = millis();
@@ -59,10 +63,9 @@ void Button::_registerClick(unsigned long clickTime) {
 void Button::_checkDoubleClick(unsigned long clickTime) {
   // There's been a "click" event while _isSingleClicked == true.
   // If the DOUBLE_CLICK_THRESHOLD hasn't expired, we have a "double click"
-  _now = millis();
-  bool isUnderThreshold = (_now - _lastClickTime <= _doubleClickThreshold);
+  bool isUnderThreshold = (clickTime - _lastClickTime <= _doubleClickThreshold);
 
-  if (isUnderThreshold) {   // We have a "double click"
+  if (isUnderThreshold) {
     _isDoubleClicked = true;
     _isSingleClicked = false;
     _lastClickTime = 0;     // Forget there ever was a click
