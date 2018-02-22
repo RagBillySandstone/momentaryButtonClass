@@ -28,7 +28,7 @@
 Button thisButton;
 
 // TODO: Not constants so I can implement a function to tune them later
-byte debounceThreshold = 50;
+byte debounceThreshold = 100;
 unsigned int doubleClickThreshold = 1000;
 
 bool lastDebounceState = LOW;
@@ -48,30 +48,34 @@ unsigned int summaryInterval = 10000;
 void setup() {
   Serial.begin(9600);
   thisButton.begin(BUTTON_1, debounceThreshold, doubleClickThreshold);
+  now = millis();
 }
 
 
 void loop() {
   now = millis();
+
+  if (digitalRead(BUTTON_1) != lastDigitalReadState) {
+    lastDigitalReadState = !lastDigitalReadState;
+    changesSinceDebounce += 1;
+    Serial.print("Bounce detected\n");
+    totalBounces ++;
+  }
+
   if (thisButton.debouncedRead() != lastDebounceState) {
     lastDebounceState = !lastDebounceState;
     Serial.print("Debounced input detected. ");
     Serial.print(changesSinceDebounce);
     Serial.print(" bounces since last debounced change.\n");
 
-    totalBounces += changesSinceDebounce;
     totalDebouncedChanges +=1;
     changesSinceDebounce = 0;
   }
 
-  if (digitalRead(BUTTON_1) != lastDigitalReadState) {
-    lastDigitalReadState = !lastDigitalReadState;
-    changesSinceDebounce += 1;
-    Serial.print("Bounce detected\n");
-  }
-
   if (now - lastSummary >= summaryInterval) {
-    double average = double(totalBounces) / double(totalDebouncedChanges);
+    double average = 0;
+    if (totalDebouncedChanges !=0)
+      average = double(totalBounces) / double(totalDebouncedChanges);
     Serial.print("Total bounces: ");
     Serial.print(totalBounces);
     Serial.print("   Total debounced: ");

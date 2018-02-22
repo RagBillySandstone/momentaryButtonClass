@@ -19,7 +19,7 @@
 
 Button::Button() {
   _lastDebounceTime = 0;
-  _lastDebouncedState = digitalRead(_pin);
+  _lastDebouncedState = LOW;
 }
 
 void Button::begin(byte pinNumber,
@@ -36,22 +36,21 @@ bool Button::debouncedRead() {
   _now = millis();
 
   // TODO: check PIN register instead of doing:
-  int currentReading = digitalRead(_pin);
+  bool currentReading = digitalRead(_pin);
   if (currentReading != _lastDebouncedState) {
     _lastDebounceTime = _now; // reset the timer
   }
 
   // Check if the input passes the debounce
-  bool passedDebounce = ((_now - _lastDebounceTime) > _debounceThreshold);
-  if (passedDebounce == true) {
-    bool didStateChange = (currentReading != _lastDebouncedState);
-    if (didStateChange == true) {
-      _lastDebouncedState = currentReading;
+  if ((_now - _lastDebounceTime) > _debounceThreshold) {
+    if (currentReading != buttonState) {
+      buttonState = currentReading;
       // Was there a "click?" i.e., did state change from high to low
-      if (_lastDebouncedState == LOW)
-        _registerClick(_now);
+      // if (_lastDebouncedState == LOW)
+      //   _registerClick(_now);
       } // (didStateChange)
     } // (passedDebounce)
+  _lastDebouncedState = currentReading;
   return _lastDebouncedState; // after all, that's what we asked for
 }
 
@@ -68,7 +67,7 @@ void Button::_registerClick(unsigned long clickTime) {
 void Button::_checkDoubleClick(unsigned long clickTime) {
   // There's been a "click" event while _isSingleClicked == true.
   // If the DOUBLE_CLICK_THRESHOLD hasn't expired, we have a "double click"
-  bool isUnderThreshold = (clickTime - _lastClickTime <= _doubleClickThreshold);
+  bool isUnderThreshold = ((clickTime - _lastClickTime) <= _doubleClickThreshold);
   if (isUnderThreshold) {
     _isDoubleClicked = true;
     _isSingleClicked = false;

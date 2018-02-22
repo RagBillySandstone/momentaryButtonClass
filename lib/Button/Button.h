@@ -44,6 +44,7 @@ class Button {
     byte _debounceThreshold = DEBOUNCE_THRESHOLD;
     unsigned long _lastDebounceTime = 0;
     bool _lastDebouncedState = LOW;
+    bool buttonState = LOW;
 
     unsigned int _doubleClickThreshold = DOUBLE_CLICK_THRESHOLD;
     unsigned long _lastClickTime = 0;
